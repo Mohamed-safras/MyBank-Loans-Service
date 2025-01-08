@@ -1,0 +1,1922 @@
+Index: src/main/java/org/dctechlabs/loans/exceptions/LoanAlreadyExistsException.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/exceptions/LoanAlreadyExistsException.java b/src/main/java/org/dctechlabs/loans/exceptions/LoanAlreadyExistsException.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/exceptions/LoanAlreadyExistsException.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,12 +0,0 @@
+-package org.dctechlabs.loans.exceptions;
+-
+-import org.springframework.http.HttpStatus;
+-import org.springframework.web.bind.annotation.ResponseStatus;
+-
+-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+-public class LoanAlreadyExistsException extends RuntimeException {
+-
+-    public LoanAlreadyExistsException(String message) {
+-        super(message);
+-    }
+-}
+Index: src/main/java/org/dctechlabs/loans/constants/LoansConstants.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/constants/LoansConstants.java b/src/main/java/org/dctechlabs/loans/constants/LoansConstants.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/constants/LoansConstants.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,21 +0,0 @@
+-package org.dctechlabs.loans.constants;
+-
+-public final class LoansConstants {
+-
+-    private LoansConstants() {
+-        // restrict instantiation
+-    }
+-
+-    public static final String  HOME_LOAN = "Home Loan";
+-    public static final int  NEW_LOAN_LIMIT = 1_00_000;
+-    public static final String  STATUS_201 = "201";
+-    public static final String  MESSAGE_201 = "Loan created successfully";
+-    public static final String  STATUS_200 = "200";
+-    public static final String  MESSAGE_200 = "Request processed successfully";
+-    public static final String  STATUS_417 = "417";
+-    public static final String  MESSAGE_417_UPDATE= "Update operation failed. Please try again or contact Dev team";
+-    public static final String  MESSAGE_417_DELETE= "Delete operation failed. Please try again or contact Dev team";
+-    // public static final String  STATUS_500 = "500";
+-    // public static final String  MESSAGE_500 = "An error occurred. Please try again or contact Dev team";
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/entity/BaseEntity.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/entity/BaseEntity.java b/src/main/java/org/dctechlabs/loans/entity/BaseEntity.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/entity/BaseEntity.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,40 +0,0 @@
+-package org.dctechlabs.loans.entity;
+-
+-import jakarta.persistence.Column;
+-import jakarta.persistence.EntityListeners;
+-import jakarta.persistence.MappedSuperclass;
+-import lombok.Getter;
+-import lombok.Setter;
+-import lombok.ToString;
+-import org.springframework.data.annotation.CreatedBy;
+-import org.springframework.data.annotation.CreatedDate;
+-import org.springframework.data.annotation.LastModifiedBy;
+-import org.springframework.data.annotation.LastModifiedDate;
+-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+-
+-import java.time.LocalDateTime;
+-
+-@MappedSuperclass
+-@EntityListeners(AuditingEntityListener.class)
+-@Getter
+-@Setter
+-@ToString
+-public class BaseEntity {
+-
+-    @CreatedDate
+-    @Column(updatable = false)
+-    private LocalDateTime createdAt;
+-
+-    @CreatedBy
+-    @Column(updatable = false)
+-    private String createdBy;
+-
+-    @LastModifiedDate
+-    @Column(insertable = false)
+-    private LocalDateTime updatedAt;
+-
+-    @LastModifiedBy
+-    @Column(insertable = false)
+-    private String updatedBy;
+-
+-}
+Index: src/main/java/org/dctechlabs/loans/exceptions/GlobalExceptionHandler.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/exceptions/GlobalExceptionHandler.java b/src/main/java/org/dctechlabs/loans/exceptions/GlobalExceptionHandler.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/exceptions/GlobalExceptionHandler.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,73 +0,0 @@
+-package org.dctechlabs.loans.exceptions;
+-import org.dctechlabs.loans.dto.ErrorResponseDto;
+-import org.springframework.http.HttpHeaders;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.HttpStatusCode;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.validation.FieldError;
+-import org.springframework.validation.ObjectError;
+-import org.springframework.web.bind.MethodArgumentNotValidException;
+-import org.springframework.web.bind.annotation.ControllerAdvice;
+-import org.springframework.web.bind.annotation.ExceptionHandler;
+-import org.springframework.web.context.request.WebRequest;
+-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+-
+-import java.time.LocalDateTime;
+-import java.util.HashMap;
+-import java.util.List;
+-import java.util.Map;
+-
+-@ControllerAdvice
+-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+-
+-    @Override
+-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+-            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+-        Map<String, String> validationErrors = new HashMap<>();
+-        List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
+-
+-        validationErrorList.forEach((error) -> {
+-            String fieldName = ((FieldError) error).getField();
+-            String validationMsg = error.getDefaultMessage();
+-            validationErrors.put(fieldName, validationMsg);
+-        });
+-        return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+-    }
+-
+-    @ExceptionHandler(Exception.class)
+-    public ResponseEntity<ErrorResponseDto> handleGlobalException(Exception exception,
+-                                                                  WebRequest webRequest) {
+-        ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
+-                webRequest.getDescription(false),
+-                HttpStatus.INTERNAL_SERVER_ERROR,
+-                exception.getMessage(),
+-                LocalDateTime.now()
+-        );
+-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+-    }
+-
+-    @ExceptionHandler(ResourceNotFoundException.class)
+-    public ResponseEntity<ErrorResponseDto> handleResourceNotFoundException(ResourceNotFoundException exception,
+-                                                                            WebRequest webRequest) {
+-        ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
+-                webRequest.getDescription(false),
+-                HttpStatus.NOT_FOUND,
+-                exception.getMessage(),
+-                LocalDateTime.now()
+-        );
+-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
+-    }
+-
+-    @ExceptionHandler(LoanAlreadyExistsException.class)
+-    public ResponseEntity<ErrorResponseDto> handleLoanAlreadyExistsException(LoanAlreadyExistsException exception,
+-                                                                             WebRequest webRequest){
+-        ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
+-                webRequest.getDescription(false),
+-                HttpStatus.BAD_REQUEST,
+-                exception.getMessage(),
+-                LocalDateTime.now()
+-        );
+-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+-    }
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/service/impl/LoansServiceImpl.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/service/impl/LoansServiceImpl.java b/src/main/java/org/dctechlabs/loans/service/impl/LoansServiceImpl.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/service/impl/LoansServiceImpl.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,92 +0,0 @@
+-package org.dctechlabs.loans.service.impl;
+-
+-import lombok.AllArgsConstructor;
+-import org.dctechlabs.loans.constants.LoansConstants;
+-import org.dctechlabs.loans.dto.LoansDto;
+-import org.dctechlabs.loans.entity.Loans;
+-import org.dctechlabs.loans.exceptions.LoanAlreadyExistsException;
+-import org.dctechlabs.loans.exceptions.ResourceNotFoundException;
+-import org.dctechlabs.loans.mapper.LoansMapper;
+-import org.dctechlabs.loans.repository.LoansRepository;
+-import org.dctechlabs.loans.service.ILoansService;
+-import org.springframework.stereotype.Service;
+-
+-import java.util.Optional;
+-import java.util.Random;
+-
+-@Service
+-@AllArgsConstructor
+-public class LoansServiceImpl implements ILoansService {
+-
+-    private LoansRepository loansRepository;
+-
+-    /**
+-     * @param mobileNumber - Mobile Number of the Customer
+-     */
+-    @Override
+-    public void createLoan(String mobileNumber) {
+-        Optional<Loans> optionalLoans= loansRepository.findByMobileNumber(mobileNumber);
+-        if(optionalLoans.isPresent()){
+-            throw new LoanAlreadyExistsException("Loan already registered with given mobileNumber "+mobileNumber);
+-        }
+-        loansRepository.save(createNewLoan(mobileNumber));
+-    }
+-
+-    /**
+-     * @param mobileNumber - Mobile Number of the Customer
+-     * @return the new loan details
+-     */
+-    private Loans createNewLoan(String mobileNumber) {
+-        Loans newLoan = new Loans();
+-        long randomLoanNumber = 100000000000L + new Random().nextInt(900000000);
+-        newLoan.setLoanNumber(Long.toString(randomLoanNumber));
+-        newLoan.setMobileNumber(mobileNumber);
+-        newLoan.setLoanType(LoansConstants.HOME_LOAN);
+-        newLoan.setTotalLoan(LoansConstants.NEW_LOAN_LIMIT);
+-        newLoan.setAmountPaid(0);
+-        newLoan.setOutstandingAmount(LoansConstants.NEW_LOAN_LIMIT);
+-        return newLoan;
+-    }
+-
+-    /**
+-     *
+-     * @param mobileNumber - Input mobile Number
+-     * @return Loan Details based on a given mobileNumber
+-     */
+-    @Override
+-    public LoansDto fetchLoan(String mobileNumber) {
+-        Loans loans = loansRepository.findByMobileNumber(mobileNumber).orElseThrow(
+-                () -> new ResourceNotFoundException("Loan", "mobileNumber", mobileNumber)
+-        );
+-        return LoansMapper.mapToLoansDto(loans, new LoansDto());
+-    }
+-
+-    /**
+-     *
+-     * @param loansDto - LoansDto Object
+-     * @return boolean indicating if the update of loan details is successful or not
+-     */
+-    @Override
+-    public boolean updateLoan(LoansDto loansDto) {
+-        Loans loans = loansRepository.findByLoanNumber(loansDto.getLoanNumber()).orElseThrow(
+-                () -> new ResourceNotFoundException("Loan", "LoanNumber", loansDto.getLoanNumber()));
+-        LoansMapper.mapToLoans(loansDto, loans);
+-        loansRepository.save(loans);
+-        return  true;
+-    }
+-
+-    /**
+-     * @param mobileNumber - Input MobileNumber
+-     * @return boolean indicating if the delete of loan details is successful or not
+-     */
+-    @Override
+-    public boolean deleteLoan(String mobileNumber) {
+-        Loans loans = loansRepository.findByMobileNumber(mobileNumber).orElseThrow(
+-                () -> new ResourceNotFoundException("Loan", "mobileNumber", mobileNumber)
+-        );
+-        loansRepository.deleteById(loans.getLoanId());
+-        return true;
+-    }
+-
+-
+-}
+Index: src/main/java/org/dctechlabs/loans/dto/ErrorResponseDto.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/dto/ErrorResponseDto.java b/src/main/java/org/dctechlabs/loans/dto/ErrorResponseDto.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/dto/ErrorResponseDto.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,39 +0,0 @@
+-package org.dctechlabs.loans.dto;
+-
+-
+-import io.swagger.v3.oas.annotations.media.Schema;
+-import lombok.AllArgsConstructor;
+-import lombok.Data;
+-import org.springframework.http.HttpStatus;
+-
+-import java.time.LocalDateTime;
+-
+-@Data
+-@AllArgsConstructor
+-@Schema(
+-        name = "ErrorResponse",
+-        description = "Schema to hold error response information"
+-)
+-public class ErrorResponseDto {
+-
+-    @Schema(
+-            description = "API path invoked by client"
+-    )
+-    private  String apiPath;
+-
+-    @Schema(
+-            description = "Error code representing the error happened"
+-    )
+-    private HttpStatus errorCode;
+-
+-    @Schema(
+-            description = "Error message representing the error happened"
+-    )
+-    private  String errorMessage;
+-
+-    @Schema(
+-            description = "Time representing when the error happened"
+-    )
+-    private LocalDateTime errorTime;
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/repository/LoansRepository.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/repository/LoansRepository.java b/src/main/java/org/dctechlabs/loans/repository/LoansRepository.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/repository/LoansRepository.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,16 +0,0 @@
+-package org.dctechlabs.loans.repository;
+-
+-import org.dctechlabs.loans.entity.Loans;
+-import org.springframework.data.jpa.repository.JpaRepository;
+-import org.springframework.stereotype.Repository;
+-
+-import java.util.Optional;
+-
+-@Repository
+-public interface LoansRepository extends JpaRepository<Loans, Long> {
+-
+-    Optional<Loans> findByMobileNumber(String mobileNumber);
+-
+-    Optional<Loans> findByLoanNumber(String loanNumber);
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/exceptions/ResourceNotFoundException.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/exceptions/ResourceNotFoundException.java b/src/main/java/org/dctechlabs/loans/exceptions/ResourceNotFoundException.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/exceptions/ResourceNotFoundException.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,12 +0,0 @@
+-package org.dctechlabs.loans.exceptions;
+-
+-import org.springframework.http.HttpStatus;
+-import org.springframework.web.bind.annotation.ResponseStatus;
+-
+-@ResponseStatus(value = HttpStatus.NOT_FOUND)
+-public class ResourceNotFoundException extends RuntimeException {
+-
+-    public ResourceNotFoundException(String resourceName, String fieldName, String fieldValue){
+-        super(String.format("%s not found with the given input data %s : '%s'", resourceName, fieldName, fieldValue));
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/mapper/LoansMapper.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/mapper/LoansMapper.java b/src/main/java/org/dctechlabs/loans/mapper/LoansMapper.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/mapper/LoansMapper.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,28 +0,0 @@
+-package org.dctechlabs.loans.mapper;
+-
+-import org.dctechlabs.loans.dto.LoansDto;
+-import org.dctechlabs.loans.entity.Loans;
+-
+-public class LoansMapper {
+-
+-    public static LoansDto mapToLoansDto(Loans loans, LoansDto loansDto) {
+-        loansDto.setLoanNumber(loans.getLoanNumber());
+-        loansDto.setLoanType(loans.getLoanType());
+-        loansDto.setMobileNumber(loans.getMobileNumber());
+-        loansDto.setTotalLoan(loans.getTotalLoan());
+-        loansDto.setAmountPaid(loans.getAmountPaid());
+-        loansDto.setOutstandingAmount(loans.getOutstandingAmount());
+-        return loansDto;
+-    }
+-
+-    public static Loans mapToLoans(LoansDto loansDto, Loans loans) {
+-        loans.setLoanNumber(loansDto.getLoanNumber());
+-        loans.setLoanType(loansDto.getLoanType());
+-        loans.setMobileNumber(loansDto.getMobileNumber());
+-        loans.setTotalLoan(loansDto.getTotalLoan());
+-        loans.setAmountPaid(loansDto.getAmountPaid());
+-        loans.setOutstandingAmount(loansDto.getOutstandingAmount());
+-        return loans;
+-    }
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/audit/AuditAwareImpl.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/audit/AuditAwareImpl.java b/src/main/java/org/dctechlabs/loans/audit/AuditAwareImpl.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/audit/AuditAwareImpl.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,21 +0,0 @@
+-package org.dctechlabs.loans.audit;
+-
+-import org.springframework.data.domain.AuditorAware;
+-import org.springframework.stereotype.Component;
+-
+-import java.util.Optional;
+-
+-@Component("auditAwareImpl")
+-public class AuditAwareImpl implements AuditorAware<String> {
+-
+-    /**
+-     * Returns the current auditor of the application.
+-     *
+-     * @return the current auditor.
+-     */
+-    @Override
+-    public Optional<String> getCurrentAuditor() {
+-        return Optional.of("LOANS_MS");
+-    }
+-
+-}
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/dto/LoansDto.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/dto/LoansDto.java b/src/main/java/org/dctechlabs/loans/dto/LoansDto.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/dto/LoansDto.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,54 +0,0 @@
+-package org.dctechlabs.loans.dto;
+-
+-import io.swagger.v3.oas.annotations.media.Schema;
+-import jakarta.validation.constraints.NotEmpty;
+-import jakarta.validation.constraints.Pattern;
+-import jakarta.validation.constraints.Positive;
+-import jakarta.validation.constraints.PositiveOrZero;
+-import lombok.Data;
+-
+-@Schema(name = "Loans",
+-        description = "Schema to hold Loan information"
+-)
+-@Data
+-public class LoansDto {
+-
+-    @NotEmpty(message = "Mobile Number can not be a null or empty")
+-    @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile Number must be 10 digits")
+-    @Schema(
+-            description = "Mobile Number of Customer", example = "4365327698"
+-    )
+-    private String mobileNumber;
+-
+-    @NotEmpty(message = "Loan Number can not be a null or empty")
+-    @Pattern(regexp="(^$|[0-9]{12})",message = "LoanNumber must be 12 digits")
+-    @Schema(
+-            description = "Loan Number of the customer", example = "548732457654"
+-    )
+-    private String loanNumber;
+-
+-    @NotEmpty(message = "LoanType can not be a null or empty")
+-    @Schema(
+-            description = "Type of the loan", example = "Home Loan"
+-    )
+-    private String loanType;
+-
+-    @Positive(message = "Total loan amount should be greater than zero")
+-    @Schema(
+-            description = "Total loan amount", example = "100000"
+-    )
+-    private int totalLoan;
+-
+-    @PositiveOrZero(message = "Total loan amount paid should be equal or greater than zero")
+-    @Schema(
+-            description = "Total loan amount paid", example = "1000"
+-    )
+-    private int amountPaid;
+-
+-    @PositiveOrZero(message = "Total outstanding amount should be equal or greater than zero")
+-    @Schema(
+-            description = "Total outstanding amount against a loan", example = "99000"
+-    )
+-    private int outstandingAmount;
+-
+-}
+Index: src/main/java/org/dctechlabs/loans/service/ILoansService.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/service/ILoansService.java b/src/main/java/org/dctechlabs/loans/service/ILoansService.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/service/ILoansService.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,34 +0,0 @@
+-package org.dctechlabs.loans.service;
+-
+-import org.dctechlabs.loans.dto.LoansDto;
+-
+-public interface ILoansService {
+-
+-    /**
+-     *
+-     * @param mobileNumber - Mobile Number of the Customer
+-     */
+-    void createLoan(String mobileNumber);
+-
+-    /**
+-     *
+-     * @param mobileNumber - Input mobile Number
+-     *  @return Loan Details based on a given mobileNumber
+-     */
+-    LoansDto fetchLoan(String mobileNumber);
+-
+-    /**
+-     *
+-     * @param loansDto - LoansDto Object
+-     * @return boolean indicating if the update of card details is successful or not
+-     */
+-    boolean updateLoan(LoansDto loansDto);
+-
+-    /**
+-     *
+-     * @param mobileNumber - Input Mobile Number
+-     * @return boolean indicating if the delete of loan details is successful or not
+-     */
+-    boolean deleteLoan(String mobileNumber);
+-
+-}
+\ No newline at end of file
+Index: src/test/java/org/dctechlabs/loans/LoansApplicationTests.java
+===================================================================
+diff --git a/src/test/java/org/dctechlabs/loans/LoansApplicationTests.java b/src/test/java/org/dctechlabs/loans/LoansApplicationTests.java
+deleted file mode 100644
+--- a/src/test/java/org/dctechlabs/loans/LoansApplicationTests.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,13 +0,0 @@
+-package org.dctechlabs.loans;
+-
+-import org.junit.jupiter.api.Test;
+-import org.springframework.boot.test.context.SpringBootTest;
+-
+-@SpringBootTest
+-class LoansApplicationTests {
+-
+-    @Test
+-    void contextLoads() {
+-    }
+-
+-}
+Index: .gitignore
+===================================================================
+diff --git a/.gitignore b/.gitignore
+deleted file mode 100644
+--- a/.gitignore	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,33 +0,0 @@
+-HELP.md
+-target/
+-!.mvn/wrapper/maven-wrapper.jar
+-!**/src/main/**/target/
+-!**/src/test/**/target/
+-
+-### STS ###
+-.apt_generated
+-.classpath
+-.factorypath
+-.project
+-.settings
+-.springBeans
+-.sts4-cache
+-
+-### IntelliJ IDEA ###
+-.idea
+-*.iws
+-*.iml
+-*.ipr
+-
+-### NetBeans ###
+-/nbproject/private/
+-/nbbuild/
+-/dist/
+-/nbdist/
+-/.nb-gradle/
+-build/
+-!**/src/main/**/build/
+-!**/src/test/**/build/
+-
+-### VS Code ###
+-.vscode/
+Index: src/main/java/org/dctechlabs/loans/dto/ResponseDto.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/dto/ResponseDto.java b/src/main/java/org/dctechlabs/loans/dto/ResponseDto.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/dto/ResponseDto.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,25 +0,0 @@
+-package org.dctechlabs.loans.dto;
+-
+-import io.swagger.v3.oas.annotations.media.Schema;
+-import lombok.AllArgsConstructor;
+-import lombok.Data;
+-
+-@Schema(
+-        name = "Response",
+-        description = "Schema to hold successful response information"
+-)
+-@Data
+-@AllArgsConstructor
+-public class ResponseDto {
+-
+-    @Schema(
+-            description = "Status code in the response"
+-    )
+-    private String statusCode;
+-
+-    @Schema(
+-            description = "Status message in the response"
+-    )
+-    private String statusMsg;
+-
+-}
+Index: Dockerfile
+===================================================================
+diff --git a/Dockerfile b/Dockerfile
+deleted file mode 100644
+--- a/Dockerfile	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,8 +0,0 @@
+-#Start with a base image containing Java runtime
+-FROM openjdk:21-jdk-slim
+-
+-# Add the application's jar to the image
+-COPY target/loans-0.0.1-SNAPSHOT.jar loans-0.0.1-SNAPSHOT.jar
+-
+-# execute the application
+-ENTRYPOINT ["java", "-jar", "loans-0.0.1-SNAPSHOT.jar"]
+Index: src/main/java/org/dctechlabs/loans/entity/Loans.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/entity/Loans.java b/src/main/java/org/dctechlabs/loans/entity/Loans.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/entity/Loans.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,33 +0,0 @@
+-package org.dctechlabs.loans.entity;
+-
+-import jakarta.persistence.Entity;
+-import jakarta.persistence.GeneratedValue;
+-import jakarta.persistence.GenerationType;
+-import jakarta.persistence.Id;
+-import lombok.*;
+-
+-@Entity
+-@Getter
+-@Setter
+-@ToString
+-@AllArgsConstructor
+-@NoArgsConstructor
+-public class Loans extends BaseEntity {
+-
+-    @Id
+-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+-    private Long loanId;
+-
+-    private String mobileNumber;
+-
+-    private String loanNumber;
+-
+-    private String loanType;
+-
+-    private int totalLoan;
+-
+-    private int amountPaid;
+-
+-    private int outstandingAmount;
+-
+-}
+\ No newline at end of file
+Index: README.md
+===================================================================
+diff --git a/README.md b/README.md
+deleted file mode 100644
+--- a/README.md	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,1 +0,0 @@
+-# MyBank-Loans-Service
+\ No newline at end of file
+Index: src/main/java/org/dctechlabs/loans/controller/LoansController.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/controller/LoansController.java b/src/main/java/org/dctechlabs/loans/controller/LoansController.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/controller/LoansController.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,163 +0,0 @@
+-package org.dctechlabs.loans.controller;
+-
+-import io.swagger.v3.oas.annotations.Operation;
+-import io.swagger.v3.oas.annotations.media.Content;
+-import io.swagger.v3.oas.annotations.media.Schema;
+-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+-import io.swagger.v3.oas.annotations.tags.Tag;
+-import jakarta.validation.Valid;
+-import jakarta.validation.constraints.Pattern;
+-import lombok.AllArgsConstructor;
+-import org.dctechlabs.loans.constants.LoansConstants;
+-import org.dctechlabs.loans.dto.ErrorResponseDto;
+-import org.dctechlabs.loans.dto.LoansDto;
+-import org.dctechlabs.loans.dto.ResponseDto;
+-import org.dctechlabs.loans.service.ILoansService;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.MediaType;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.validation.annotation.Validated;
+-import org.springframework.web.bind.annotation.*;
+-
+-@Tag(
+-        name = "CRUD REST APIs for Loans in EazyBank",
+-        description = "CRUD REST APIs in EazyBank to CREATE, UPDATE, FETCH AND DELETE loan details"
+-)
+-@RestController
+-@RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
+-@AllArgsConstructor
+-@Validated
+-public class LoansController {
+-
+-    private ILoansService iLoansService;
+-
+-    @Operation(
+-            summary = "Create Loan REST API",
+-            description = "REST API to create new loan inside EazyBank"
+-    )
+-    @ApiResponses({
+-            @ApiResponse(
+-                    responseCode = "201",
+-                    description = "HTTP Status CREATED"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "500",
+-                    description = "HTTP Status Internal Server Error",
+-                    content = @Content(
+-                            schema = @Schema(implementation = ErrorResponseDto.class)
+-                    )
+-            )
+-    }
+-    )
+-    @PostMapping("/create")
+-    public ResponseEntity<ResponseDto> createLoan(@RequestParam
+-                                                  @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+-                                                  String mobileNumber) {
+-        iLoansService.createLoan(mobileNumber);
+-        return ResponseEntity
+-                .status(HttpStatus.CREATED)
+-                .body(new ResponseDto(LoansConstants.STATUS_201, LoansConstants.MESSAGE_201));
+-    }
+-
+-    @Operation(
+-            summary = "Fetch Loan Details REST API",
+-            description = "REST API to fetch loan details based on a mobile number"
+-    )
+-    @ApiResponses({
+-            @ApiResponse(
+-                    responseCode = "200",
+-                    description = "HTTP Status OK"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "500",
+-                    description = "HTTP Status Internal Server Error",
+-                    content = @Content(
+-                            schema = @Schema(implementation = ErrorResponseDto.class)
+-                    )
+-            )
+-    }
+-    )
+-    @GetMapping("/fetch")
+-    public ResponseEntity<LoansDto> fetchLoanDetails(@RequestParam
+-                                                     @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+-                                                     String mobileNumber) {
+-        LoansDto loansDto = iLoansService.fetchLoan(mobileNumber);
+-        return ResponseEntity.status(HttpStatus.OK).body(loansDto);
+-    }
+-
+-    @Operation(
+-            summary = "Update Loan Details REST API",
+-            description = "REST API to update loan details based on a loan number"
+-    )
+-    @ApiResponses({
+-            @ApiResponse(
+-                    responseCode = "200",
+-                    description = "HTTP Status OK"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "417",
+-                    description = "Expectation Failed"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "500",
+-                    description = "HTTP Status Internal Server Error",
+-                    content = @Content(
+-                            schema = @Schema(implementation = ErrorResponseDto.class)
+-                    )
+-            )
+-    }
+-    )
+-    @PutMapping("/update")
+-    public ResponseEntity<ResponseDto> updateLoanDetails(@Valid @RequestBody LoansDto loansDto) {
+-        boolean isUpdated = iLoansService.updateLoan(loansDto);
+-        if(isUpdated) {
+-            return ResponseEntity
+-                    .status(HttpStatus.OK)
+-                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
+-        }else{
+-            return ResponseEntity
+-                    .status(HttpStatus.EXPECTATION_FAILED)
+-                    .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_UPDATE));
+-        }
+-    }
+-
+-    @Operation(
+-            summary = "Delete Loan Details REST API",
+-            description = "REST API to delete Loan details based on a mobile number"
+-    )
+-    @ApiResponses({
+-            @ApiResponse(
+-                    responseCode = "200",
+-                    description = "HTTP Status OK"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "417",
+-                    description = "Expectation Failed"
+-            ),
+-            @ApiResponse(
+-                    responseCode = "500",
+-                    description = "HTTP Status Internal Server Error",
+-                    content = @Content(
+-                            schema = @Schema(implementation = ErrorResponseDto.class)
+-                    )
+-            )
+-    }
+-    )
+-    @DeleteMapping("/delete")
+-    public ResponseEntity<ResponseDto> deleteLoanDetails(@RequestParam
+-                                                         @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+-                                                         String mobileNumber) {
+-        boolean isDeleted = iLoansService.deleteLoan(mobileNumber);
+-        if(isDeleted) {
+-            return ResponseEntity
+-                    .status(HttpStatus.OK)
+-                    .body(new ResponseDto(LoansConstants.STATUS_200, LoansConstants.MESSAGE_200));
+-        }else{
+-            return ResponseEntity
+-                    .status(HttpStatus.EXPECTATION_FAILED)
+-                    .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
+-        }
+-    }
+-
+-}
+Index: src/main/java/org/dctechlabs/loans/LoansApplication.java
+===================================================================
+diff --git a/src/main/java/org/dctechlabs/loans/LoansApplication.java b/src/main/java/org/dctechlabs/loans/LoansApplication.java
+deleted file mode 100644
+--- a/src/main/java/org/dctechlabs/loans/LoansApplication.java	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ /dev/null	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
+@@ -1,38 +0,0 @@
+-package org.dctechlabs.loans;
+-
+-import io.swagger.v3.oas.annotations.ExternalDocumentation;
+-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+-import io.swagger.v3.oas.annotations.info.Contact;
+-import io.swagger.v3.oas.annotations.info.Info;
+-import io.swagger.v3.oas.annotations.info.License;
+-import org.springframework.boot.SpringApplication;
+-import org.springframework.boot.autoconfigure.SpringBootApplication;
+-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+-
+-@SpringBootApplication
+-@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+-@OpenAPIDefinition(
+-        info = @Info(
+-                title = "Loans microservice REST API Documentation",
+-                description = "MyBank Loans microservice REST API Documentation",
+-                version = "v1",
+-                contact = @Contact(
+-                        name = "Mohamed Safras",
+-                        email = "mohamed.safras@acentura.com"
+-                ),
+-                license = @License(
+-                        name = "Apache 2.0",
+-                        url = "https://www.eazybytes.com"
+-                )
+-        ),
+-        externalDocs = @ExternalDocumentation(
+-                description = "MyBank Loans microservice REST API Documentation"
+-        )
+-)
+-public class LoansApplication {
+-
+-    public static void main(String[] args) {
+-        SpringApplication.run(LoansApplication.class, args);
+-    }
+-
+-}
+Index: mvnw.cmd
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><# : batch portion\r\n@REM ----------------------------------------------------------------------------\r\n@REM Licensed to the Apache Software Foundation (ASF) under one\r\n@REM or more contributor license agreements.  See the NOTICE file\r\n@REM distributed with this work for additional information\r\n@REM regarding copyright ownership.  The ASF licenses this file\r\n@REM to you under the Apache License, Version 2.0 (the\r\n@REM \"License\"); you may not use this file except in compliance\r\n@REM with the License.  You may obtain a copy of the License at\r\n@REM\r\n@REM    http://www.apache.org/licenses/LICENSE-2.0\r\n@REM\r\n@REM Unless required by applicable law or agreed to in writing,\r\n@REM software distributed under the License is distributed on an\r\n@REM \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\r\n@REM KIND, either express or implied.  See the License for the\r\n@REM specific language governing permissions and limitations\r\n@REM under the License.\r\n@REM ----------------------------------------------------------------------------\r\n\r\n@REM ----------------------------------------------------------------------------\r\n@REM Apache Maven Wrapper startup batch script, version 3.3.2\r\n@REM\r\n@REM Optional ENV vars\r\n@REM   MVNW_REPOURL - repo url base for downloading maven distribution\r\n@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven\r\n@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output\r\n@REM ----------------------------------------------------------------------------\r\n\r\n@IF \"%__MVNW_ARG0_NAME__%\"==\"\" (SET __MVNW_ARG0_NAME__=%~nx0)\r\n@SET __MVNW_CMD__=\r\n@SET __MVNW_ERROR__=\r\n@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%\r\n@SET PSModulePath=\r\n@FOR /F \"usebackq tokens=1* delims==\" %%A IN (`powershell -noprofile \"& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}\"`) DO @(\r\n  IF \"%%A\"==\"MVN_CMD\" (set __MVNW_CMD__=%%B) ELSE IF \"%%B\"==\"\" (echo %%A) ELSE (echo %%A=%%B)\r\n)\r\n@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%\r\n@SET __MVNW_PSMODULEP_SAVE=\r\n@SET __MVNW_ARG0_NAME__=\r\n@SET MVNW_USERNAME=\r\n@SET MVNW_PASSWORD=\r\n@IF NOT \"%__MVNW_CMD__%\"==\"\" (%__MVNW_CMD__% %*)\r\n@echo Cannot start maven from wrapper >&2 && exit /b 1\r\n@GOTO :EOF\r\n: end batch / begin powershell #>\r\n\r\n$ErrorActionPreference = \"Stop\"\r\nif ($env:MVNW_VERBOSE -eq \"true\") {\r\n  $VerbosePreference = \"Continue\"\r\n}\r\n\r\n# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties\r\n$distributionUrl = (Get-Content -Raw \"$scriptDir/.mvn/wrapper/maven-wrapper.properties\" | ConvertFrom-StringData).distributionUrl\r\nif (!$distributionUrl) {\r\n  Write-Error \"cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties\"\r\n}\r\n\r\nswitch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {\r\n  \"maven-mvnd-*\" {\r\n    $USE_MVND = $true\r\n    $distributionUrl = $distributionUrl -replace '-bin\\.[^.]*$',\"-windows-amd64.zip\"\r\n    $MVN_CMD = \"mvnd.cmd\"\r\n    break\r\n  }\r\n  default {\r\n    $USE_MVND = $false\r\n    $MVN_CMD = $script -replace '^mvnw','mvn'\r\n    break\r\n  }\r\n}\r\n\r\n# apply MVNW_REPOURL and calculate MAVEN_HOME\r\n# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>\r\nif ($env:MVNW_REPOURL) {\r\n  $MVNW_REPO_PATTERN = if ($USE_MVND) { \"/org/apache/maven/\" } else { \"/maven/mvnd/\" }\r\n  $distributionUrl = \"$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace '^.*'+$MVNW_REPO_PATTERN,'')\"\r\n}\r\n$distributionUrlName = $distributionUrl -replace '^.*/',''\r\n$distributionUrlNameMain = $distributionUrlName -replace '\\.[^.]*$','' -replace '-bin$',''\r\n$MAVEN_HOME_PARENT = \"$HOME/.m2/wrapper/dists/$distributionUrlNameMain\"\r\nif ($env:MAVEN_USER_HOME) {\r\n  $MAVEN_HOME_PARENT = \"$env:MAVEN_USER_HOME/wrapper/dists/$distributionUrlNameMain\"\r\n}\r\n$MAVEN_HOME_NAME = ([System.Security.Cryptography.MD5]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString(\"x2\")}) -join ''\r\n$MAVEN_HOME = \"$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME\"\r\n\r\nif (Test-Path -Path \"$MAVEN_HOME\" -PathType Container) {\r\n  Write-Verbose \"found existing MAVEN_HOME at $MAVEN_HOME\"\r\n  Write-Output \"MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD\"\r\n  exit $?\r\n}\r\n\r\nif (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {\r\n  Write-Error \"distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl\"\r\n}\r\n\r\n# prepare tmp dir\r\n$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile\r\n$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path \"$TMP_DOWNLOAD_DIR_HOLDER.dir\"\r\n$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null\r\ntrap {\r\n  if ($TMP_DOWNLOAD_DIR.Exists) {\r\n    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }\r\n    catch { Write-Warning \"Cannot remove $TMP_DOWNLOAD_DIR\" }\r\n  }\r\n}\r\n\r\nNew-Item -Itemtype Directory -Path \"$MAVEN_HOME_PARENT\" -Force | Out-Null\r\n\r\n# Download and Install Apache Maven\r\nWrite-Verbose \"Couldn't find MAVEN_HOME, downloading and installing it ...\"\r\nWrite-Verbose \"Downloading from: $distributionUrl\"\r\nWrite-Verbose \"Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName\"\r\n\r\n$webclient = New-Object System.Net.WebClient\r\nif ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {\r\n  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)\r\n}\r\n[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12\r\n$webclient.DownloadFile($distributionUrl, \"$TMP_DOWNLOAD_DIR/$distributionUrlName\") | Out-Null\r\n\r\n# If specified, validate the SHA-256 sum of the Maven distribution zip file\r\n$distributionSha256Sum = (Get-Content -Raw \"$scriptDir/.mvn/wrapper/maven-wrapper.properties\" | ConvertFrom-StringData).distributionSha256Sum\r\nif ($distributionSha256Sum) {\r\n  if ($USE_MVND) {\r\n    Write-Error \"Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties.\"\r\n  }\r\n  Import-Module $PSHOME\\Modules\\Microsoft.PowerShell.Utility -Function Get-FileHash\r\n  if ((Get-FileHash \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {\r\n    Write-Error \"Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property.\"\r\n  }\r\n}\r\n\r\n# unzip and move\r\nExpand-Archive \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" -DestinationPath \"$TMP_DOWNLOAD_DIR\" | Out-Null\r\nRename-Item -Path \"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain\" -NewName $MAVEN_HOME_NAME | Out-Null\r\ntry {\r\n  Move-Item -Path \"$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME\" -Destination $MAVEN_HOME_PARENT | Out-Null\r\n} catch {\r\n  if (! (Test-Path -Path \"$MAVEN_HOME\" -PathType Container)) {\r\n    Write-Error \"fail to move MAVEN_HOME\"\r\n  }\r\n} finally {\r\n  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }\r\n  catch { Write-Warning \"Cannot remove $TMP_DOWNLOAD_DIR\" }\r\n}\r\n\r\nWrite-Output \"MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD\"\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/mvnw.cmd b/mvnw.cmd
+--- a/mvnw.cmd	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ b/mvnw.cmd	(date 1731749806619)
+@@ -1,4 +1,3 @@
+-<# : batch portion
+ @REM ----------------------------------------------------------------------------
+ @REM Licensed to the Apache Software Foundation (ASF) under one
+ @REM or more contributor license agreements.  See the NOTICE file
+@@ -8,7 +7,7 @@
+ @REM "License"); you may not use this file except in compliance
+ @REM with the License.  You may obtain a copy of the License at
+ @REM
+-@REM    http://www.apache.org/licenses/LICENSE-2.0
++@REM    https://www.apache.org/licenses/LICENSE-2.0
+ @REM
+ @REM Unless required by applicable law or agreed to in writing,
+ @REM software distributed under the License is distributed on an
+@@ -19,131 +18,165 @@
+ @REM ----------------------------------------------------------------------------
+ 
+ @REM ----------------------------------------------------------------------------
+-@REM Apache Maven Wrapper startup batch script, version 3.3.2
++@REM Maven Start Up Batch script
++@REM
++@REM Required ENV vars:
++@REM JAVA_HOME - location of a JDK home dir
+ @REM
+ @REM Optional ENV vars
+-@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+-@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+-@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
++@REM M2_HOME - location of maven2's installed home dir
++@REM MAVEN_BATCH_ECHO - set to 'on' to enable the echoing of the batch commands
++@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a keystroke before ending
++@REM MAVEN_OPTS - parameters passed to the Java VM when running Maven
++@REM     e.g. to debug Maven itself, use
++@REM set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
++@REM MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+ @REM ----------------------------------------------------------------------------
+ 
+-@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+-@SET __MVNW_CMD__=
+-@SET __MVNW_ERROR__=
+-@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+-@SET PSModulePath=
+-@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+-  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+-)
+-@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+-@SET __MVNW_PSMODULEP_SAVE=
+-@SET __MVNW_ARG0_NAME__=
+-@SET MVNW_USERNAME=
+-@SET MVNW_PASSWORD=
+-@IF NOT "%__MVNW_CMD__%"=="" (%__MVNW_CMD__% %*)
+-@echo Cannot start maven from wrapper >&2 && exit /b 1
+-@GOTO :EOF
+-: end batch / begin powershell #>
++@REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
++@echo off
++@REM set title of command window
++title %0
++@REM enable echoing by setting MAVEN_BATCH_ECHO to 'on'
++@if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
++
++@REM set %HOME% to equivalent of $HOME
++if "%HOME%" == "" (set "HOME=%HOMEDRIVE%%HOMEPATH%")
++
++@REM Execute a user defined script before this one
++if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
++@REM check for pre script, once with legacy .bat ending and once with .cmd ending
++if exist "%HOME%\mavenrc_pre.bat" call "%HOME%\mavenrc_pre.bat"
++if exist "%HOME%\mavenrc_pre.cmd" call "%HOME%\mavenrc_pre.cmd"
++:skipRcPre
++
++@setlocal
++
++set ERROR_CODE=0
++
++@REM To isolate internal variables from possible post scripts, we use another setlocal
++@setlocal
++
++@REM ==== START VALIDATION ====
++if not "%JAVA_HOME%" == "" goto OkJHome
++
++echo.
++echo Error: JAVA_HOME not found in your environment. >&2
++echo Please set the JAVA_HOME variable in your environment to match the >&2
++echo location of your Java installation. >&2
++echo.
++goto error
++
++:OkJHome
++if exist "%JAVA_HOME%\bin\java.exe" goto init
++
++echo.
++echo Error: JAVA_HOME is set to an invalid directory. >&2
++echo JAVA_HOME = "%JAVA_HOME%" >&2
++echo Please set the JAVA_HOME variable in your environment to match the >&2
++echo location of your Java installation. >&2
++echo.
++goto error
++
++@REM ==== END VALIDATION ====
++
++:init
++
++@REM Find the project base dir, i.e. the directory that contains the folder ".mvn".
++@REM Fallback to current working directory if not found.
++
++set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%
++IF NOT "%MAVEN_PROJECTBASEDIR%"=="" goto endDetectBaseDir
++
++set EXEC_DIR=%CD%
++set WDIR=%EXEC_DIR%
++:findBaseDir
++IF EXIST "%WDIR%"\.mvn goto baseDirFound
++cd ..
++IF "%WDIR%"=="%CD%" goto baseDirNotFound
++set WDIR=%CD%
++goto findBaseDir
+ 
+-$ErrorActionPreference = "Stop"
+-if ($env:MVNW_VERBOSE -eq "true") {
+-  $VerbosePreference = "Continue"
+-}
++:baseDirFound
++set MAVEN_PROJECTBASEDIR=%WDIR%
++cd "%EXEC_DIR%"
++goto endDetectBaseDir
+ 
+-# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+-$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+-if (!$distributionUrl) {
+-  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+-}
++:baseDirNotFound
++set MAVEN_PROJECTBASEDIR=%EXEC_DIR%
++cd "%EXEC_DIR%"
+ 
+-switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+-  "maven-mvnd-*" {
+-    $USE_MVND = $true
+-    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+-    $MVN_CMD = "mvnd.cmd"
+-    break
+-  }
+-  default {
+-    $USE_MVND = $false
+-    $MVN_CMD = $script -replace '^mvnw','mvn'
+-    break
+-  }
+-}
++:endDetectBaseDir
+ 
+-# apply MVNW_REPOURL and calculate MAVEN_HOME
+-# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+-if ($env:MVNW_REPOURL) {
+-  $MVNW_REPO_PATTERN = if ($USE_MVND) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+-  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace '^.*'+$MVNW_REPO_PATTERN,'')"
+-}
+-$distributionUrlName = $distributionUrl -replace '^.*/',''
+-$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+-$MAVEN_HOME_PARENT = "$HOME/.m2/wrapper/dists/$distributionUrlNameMain"
+-if ($env:MAVEN_USER_HOME) {
+-  $MAVEN_HOME_PARENT = "$env:MAVEN_USER_HOME/wrapper/dists/$distributionUrlNameMain"
+-}
+-$MAVEN_HOME_NAME = ([System.Security.Cryptography.MD5]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+-$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
++IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
+ 
+-if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+-  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+-  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+-  exit $?
+-}
++@setlocal EnableExtensions EnableDelayedExpansion
++for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do set JVM_CONFIG_MAVEN_PROPS=!JVM_CONFIG_MAVEN_PROPS! %%a
++@endlocal & set JVM_CONFIG_MAVEN_PROPS=%JVM_CONFIG_MAVEN_PROPS%
+ 
+-if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+-  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+-}
++:endReadAdditionalConfig
+ 
+-# prepare tmp dir
+-$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+-$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+-$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+-trap {
+-  if ($TMP_DOWNLOAD_DIR.Exists) {
+-    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+-    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+-  }
+-}
++SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
++set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
++set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+ 
+-New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
++set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
+ 
+-# Download and Install Apache Maven
+-Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+-Write-Verbose "Downloading from: $distributionUrl"
+-Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
++FOR /F "tokens=1,2 delims==" %%A IN ("%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties") DO (
++    IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B
++)
+ 
+-$webclient = New-Object System.Net.WebClient
+-if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+-  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+-}
+-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+-$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
++@REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
++@REM This allows using the maven wrapper in projects that prohibit checking in binary data.
++if exist %WRAPPER_JAR% (
++    if "%MVNW_VERBOSE%" == "true" (
++        echo Found %WRAPPER_JAR%
++    )
++) else (
++    if not "%MVNW_REPOURL%" == "" (
++        SET DOWNLOAD_URL="%MVNW_REPOURL%/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
++    )
++    if "%MVNW_VERBOSE%" == "true" (
++        echo Couldn't find %WRAPPER_JAR%, downloading it ...
++        echo Downloading from: %DOWNLOAD_URL%
++    )
+ 
+-# If specified, validate the SHA-256 sum of the Maven distribution zip file
+-$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+-if ($distributionSha256Sum) {
+-  if ($USE_MVND) {
+-    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+-  }
+-  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+-  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+-    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+-  }
+-}
++    powershell -Command "&{"^
++		"$webclient = new-object System.Net.WebClient;"^
++		"if (-not ([string]::IsNullOrEmpty('%MVNW_USERNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
++		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_USERNAME%', '%MVNW_PASSWORD%');"^
++		"}"^
++		"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $webclient.DownloadFile('%DOWNLOAD_URL%', '%WRAPPER_JAR%')"^
++		"}"
++    if "%MVNW_VERBOSE%" == "true" (
++        echo Finished downloading %WRAPPER_JAR%
++    )
++)
++@REM End of extension
+ 
+-# unzip and move
+-Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+-Rename-Item -Path "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" -NewName $MAVEN_HOME_NAME | Out-Null
+-try {
+-  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+-} catch {
+-  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+-    Write-Error "fail to move MAVEN_HOME"
+-  }
+-} finally {
+-  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+-  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+-}
++@REM Provide a "standardized" way to retrieve the CLI args that will
++@REM work with both Windows and non-Windows executions.
++set MAVEN_CMD_LINE_ARGS=%*
+ 
+-Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
++%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
++if ERRORLEVEL 1 goto error
++goto end
++
++:error
++set ERROR_CODE=1
++
++:end
++@endlocal & set ERROR_CODE=%ERROR_CODE%
++
++if not "%MAVEN_SKIP_RC%" == "" goto skipRcPost
++@REM check for post script, once with legacy .bat ending and once with .cmd ending
++if exist "%HOME%\mavenrc_post.bat" call "%HOME%\mavenrc_post.bat"
++if exist "%HOME%\mavenrc_post.cmd" call "%HOME%\mavenrc_post.cmd"
++:skipRcPost
++
++@REM pause the script if MAVEN_BATCH_PAUSE is set to 'on'
++if "%MAVEN_BATCH_PAUSE%" == "on" pause
++
++if "%MAVEN_TERMINATE_CMD%" == "on" exit %ERROR_CODE%
++
++exit /B %ERROR_CODE%
+Index: mvnw
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#!/bin/sh\r\n# ----------------------------------------------------------------------------\r\n# Licensed to the Apache Software Foundation (ASF) under one\r\n# or more contributor license agreements.  See the NOTICE file\r\n# distributed with this work for additional information\r\n# regarding copyright ownership.  The ASF licenses this file\r\n# to you under the Apache License, Version 2.0 (the\r\n# \"License\"); you may not use this file except in compliance\r\n# with the License.  You may obtain a copy of the License at\r\n#\r\n#    http://www.apache.org/licenses/LICENSE-2.0\r\n#\r\n# Unless required by applicable law or agreed to in writing,\r\n# software distributed under the License is distributed on an\r\n# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\r\n# KIND, either express or implied.  See the License for the\r\n# specific language governing permissions and limitations\r\n# under the License.\r\n# ----------------------------------------------------------------------------\r\n\r\n# ----------------------------------------------------------------------------\r\n# Apache Maven Wrapper startup batch script, version 3.3.2\r\n#\r\n# Optional ENV vars\r\n# -----------------\r\n#   JAVA_HOME - location of a JDK home dir, required when download maven via java source\r\n#   MVNW_REPOURL - repo url base for downloading maven distribution\r\n#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven\r\n#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output\r\n# ----------------------------------------------------------------------------\r\n\r\nset -euf\r\n[ \"${MVNW_VERBOSE-}\" != debug ] || set -x\r\n\r\n# OS specific support.\r\nnative_path() { printf %s\\\\n \"$1\"; }\r\ncase \"$(uname)\" in\r\nCYGWIN* | MINGW*)\r\n  [ -z \"${JAVA_HOME-}\" ] || JAVA_HOME=\"$(cygpath --unix \"$JAVA_HOME\")\"\r\n  native_path() { cygpath --path --windows \"$1\"; }\r\n  ;;\r\nesac\r\n\r\n# set JAVACMD and JAVACCMD\r\nset_java_home() {\r\n  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched\r\n  if [ -n \"${JAVA_HOME-}\" ]; then\r\n    if [ -x \"$JAVA_HOME/jre/sh/java\" ]; then\r\n      # IBM's JDK on AIX uses strange locations for the executables\r\n      JAVACMD=\"$JAVA_HOME/jre/sh/java\"\r\n      JAVACCMD=\"$JAVA_HOME/jre/sh/javac\"\r\n    else\r\n      JAVACMD=\"$JAVA_HOME/bin/java\"\r\n      JAVACCMD=\"$JAVA_HOME/bin/javac\"\r\n\r\n      if [ ! -x \"$JAVACMD\" ] || [ ! -x \"$JAVACCMD\" ]; then\r\n        echo \"The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run.\" >&2\r\n        echo \"JAVA_HOME is set to \\\"$JAVA_HOME\\\", but \\\"\\$JAVA_HOME/bin/java\\\" or \\\"\\$JAVA_HOME/bin/javac\\\" does not exist.\" >&2\r\n        return 1\r\n      fi\r\n    fi\r\n  else\r\n    JAVACMD=\"$(\r\n      'set' +e\r\n      'unset' -f command 2>/dev/null\r\n      'command' -v java\r\n    )\" || :\r\n    JAVACCMD=\"$(\r\n      'set' +e\r\n      'unset' -f command 2>/dev/null\r\n      'command' -v javac\r\n    )\" || :\r\n\r\n    if [ ! -x \"${JAVACMD-}\" ] || [ ! -x \"${JAVACCMD-}\" ]; then\r\n      echo \"The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run.\" >&2\r\n      return 1\r\n    fi\r\n  fi\r\n}\r\n\r\n# hash string like Java String::hashCode\r\nhash_string() {\r\n  str=\"${1:-}\" h=0\r\n  while [ -n \"$str\" ]; do\r\n    char=\"${str%\"${str#?}\"}\"\r\n    h=$(((h * 31 + $(LC_CTYPE=C printf %d \"'$char\")) % 4294967296))\r\n    str=\"${str#?}\"\r\n  done\r\n  printf %x\\\\n $h\r\n}\r\n\r\nverbose() { :; }\r\n[ \"${MVNW_VERBOSE-}\" != true ] || verbose() { printf %s\\\\n \"${1-}\"; }\r\n\r\ndie() {\r\n  printf %s\\\\n \"$1\" >&2\r\n  exit 1\r\n}\r\n\r\ntrim() {\r\n  # MWRAPPER-139:\r\n  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.\r\n  #   Needed for removing poorly interpreted newline sequences when running in more\r\n  #   exotic environments such as mingw bash on Windows.\r\n  printf \"%s\" \"${1}\" | tr -d '[:space:]'\r\n}\r\n\r\n# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties\r\nwhile IFS=\"=\" read -r key value; do\r\n  case \"${key-}\" in\r\n  distributionUrl) distributionUrl=$(trim \"${value-}\") ;;\r\n  distributionSha256Sum) distributionSha256Sum=$(trim \"${value-}\") ;;\r\n  esac\r\ndone <\"${0%/*}/.mvn/wrapper/maven-wrapper.properties\"\r\n[ -n \"${distributionUrl-}\" ] || die \"cannot read distributionUrl property in ${0%/*}/.mvn/wrapper/maven-wrapper.properties\"\r\n\r\ncase \"${distributionUrl##*/}\" in\r\nmaven-mvnd-*bin.*)\r\n  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/\r\n  case \"${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)\" in\r\n  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;\r\n  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;\r\n  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;\r\n  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;\r\n  *)\r\n    echo \"Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version\" >&2\r\n    distributionPlatform=linux-amd64\r\n    ;;\r\n  esac\r\n  distributionUrl=\"${distributionUrl%-bin.*}-$distributionPlatform.zip\"\r\n  ;;\r\nmaven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;\r\n*) MVN_CMD=\"mvn${0##*/mvnw}\" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;\r\nesac\r\n\r\n# apply MVNW_REPOURL and calculate MAVEN_HOME\r\n# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>\r\n[ -z \"${MVNW_REPOURL-}\" ] || distributionUrl=\"$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*\"$_MVNW_REPO_PATTERN\"}\"\r\ndistributionUrlName=\"${distributionUrl##*/}\"\r\ndistributionUrlNameMain=\"${distributionUrlName%.*}\"\r\ndistributionUrlNameMain=\"${distributionUrlNameMain%-bin}\"\r\nMAVEN_USER_HOME=\"${MAVEN_USER_HOME:-${HOME}/.m2}\"\r\nMAVEN_HOME=\"${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string \"$distributionUrl\")\"\r\n\r\nexec_maven() {\r\n  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :\r\n  exec \"$MAVEN_HOME/bin/$MVN_CMD\" \"$@\" || die \"cannot exec $MAVEN_HOME/bin/$MVN_CMD\"\r\n}\r\n\r\nif [ -d \"$MAVEN_HOME\" ]; then\r\n  verbose \"found existing MAVEN_HOME at $MAVEN_HOME\"\r\n  exec_maven \"$@\"\r\nfi\r\n\r\ncase \"${distributionUrl-}\" in\r\n*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;\r\n*) die \"distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'\" ;;\r\nesac\r\n\r\n# prepare tmp dir\r\nif TMP_DOWNLOAD_DIR=\"$(mktemp -d)\" && [ -d \"$TMP_DOWNLOAD_DIR\" ]; then\r\n  clean() { rm -rf -- \"$TMP_DOWNLOAD_DIR\"; }\r\n  trap clean HUP INT TERM EXIT\r\nelse\r\n  die \"cannot create temp dir\"\r\nfi\r\n\r\nmkdir -p -- \"${MAVEN_HOME%/*}\"\r\n\r\n# Download and Install Apache Maven\r\nverbose \"Couldn't find MAVEN_HOME, downloading and installing it ...\"\r\nverbose \"Downloading from: $distributionUrl\"\r\nverbose \"Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName\"\r\n\r\n# select .zip or .tar.gz\r\nif ! command -v unzip >/dev/null; then\r\n  distributionUrl=\"${distributionUrl%.zip}.tar.gz\"\r\n  distributionUrlName=\"${distributionUrl##*/}\"\r\nfi\r\n\r\n# verbose opt\r\n__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''\r\n[ \"${MVNW_VERBOSE-}\" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v\r\n\r\n# normalize http auth\r\ncase \"${MVNW_PASSWORD:+has-password}\" in\r\n'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;\r\nhas-password) [ -n \"${MVNW_USERNAME-}\" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;\r\nesac\r\n\r\nif [ -z \"${MVNW_USERNAME-}\" ] && command -v wget >/dev/null; then\r\n  verbose \"Found wget ... using wget\"\r\n  wget ${__MVNW_QUIET_WGET:+\"$__MVNW_QUIET_WGET\"} \"$distributionUrl\" -O \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" || die \"wget: Failed to fetch $distributionUrl\"\r\nelif [ -z \"${MVNW_USERNAME-}\" ] && command -v curl >/dev/null; then\r\n  verbose \"Found curl ... using curl\"\r\n  curl ${__MVNW_QUIET_CURL:+\"$__MVNW_QUIET_CURL\"} -f -L -o \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" \"$distributionUrl\" || die \"curl: Failed to fetch $distributionUrl\"\r\nelif set_java_home; then\r\n  verbose \"Falling back to use Java to download\"\r\n  javaSource=\"$TMP_DOWNLOAD_DIR/Downloader.java\"\r\n  targetZip=\"$TMP_DOWNLOAD_DIR/$distributionUrlName\"\r\n  cat >\"$javaSource\" <<-END\r\n\tpublic class Downloader extends java.net.Authenticator\r\n\t{\r\n\t  protected java.net.PasswordAuthentication getPasswordAuthentication()\r\n\t  {\r\n\t    return new java.net.PasswordAuthentication( System.getenv( \"MVNW_USERNAME\" ), System.getenv( \"MVNW_PASSWORD\" ).toCharArray() );\r\n\t  }\r\n\t  public static void main( String[] args ) throws Exception\r\n\t  {\r\n\t    setDefault( new Downloader() );\r\n\t    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );\r\n\t  }\r\n\t}\r\n\tEND\r\n  # For Cygwin/MinGW, switch paths to Windows format before running javac and java\r\n  verbose \" - Compiling Downloader.java ...\"\r\n  \"$(native_path \"$JAVACCMD\")\" \"$(native_path \"$javaSource\")\" || die \"Failed to compile Downloader.java\"\r\n  verbose \" - Running Downloader.java ...\"\r\n  \"$(native_path \"$JAVACMD\")\" -cp \"$(native_path \"$TMP_DOWNLOAD_DIR\")\" Downloader \"$distributionUrl\" \"$(native_path \"$targetZip\")\"\r\nfi\r\n\r\n# If specified, validate the SHA-256 sum of the Maven distribution zip file\r\nif [ -n \"${distributionSha256Sum-}\" ]; then\r\n  distributionSha256Result=false\r\n  if [ \"$MVN_CMD\" = mvnd.sh ]; then\r\n    echo \"Checksum validation is not supported for maven-mvnd.\" >&2\r\n    echo \"Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties.\" >&2\r\n    exit 1\r\n  elif command -v sha256sum >/dev/null; then\r\n    if echo \"$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName\" | sha256sum -c >/dev/null 2>&1; then\r\n      distributionSha256Result=true\r\n    fi\r\n  elif command -v shasum >/dev/null; then\r\n    if echo \"$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName\" | shasum -a 256 -c >/dev/null 2>&1; then\r\n      distributionSha256Result=true\r\n    fi\r\n  else\r\n    echo \"Checksum validation was requested but neither 'sha256sum' or 'shasum' are available.\" >&2\r\n    echo \"Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties.\" >&2\r\n    exit 1\r\n  fi\r\n  if [ $distributionSha256Result = false ]; then\r\n    echo \"Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised.\" >&2\r\n    echo \"If you updated your Maven version, you need to update the specified distributionSha256Sum property.\" >&2\r\n    exit 1\r\n  fi\r\nfi\r\n\r\n# unzip and move\r\nif command -v unzip >/dev/null; then\r\n  unzip ${__MVNW_QUIET_UNZIP:+\"$__MVNW_QUIET_UNZIP\"} \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" -d \"$TMP_DOWNLOAD_DIR\" || die \"failed to unzip\"\r\nelse\r\n  tar xzf${__MVNW_QUIET_TAR:+\"$__MVNW_QUIET_TAR\"} \"$TMP_DOWNLOAD_DIR/$distributionUrlName\" -C \"$TMP_DOWNLOAD_DIR\" || die \"failed to untar\"\r\nfi\r\nprintf %s\\\\n \"$distributionUrl\" >\"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/mvnw.url\"\r\nmv -- \"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain\" \"$MAVEN_HOME\" || [ -d \"$MAVEN_HOME\" ] || die \"fail to move MAVEN_HOME\"\r\n\r\nclean || :\r\nexec_maven \"$@\"\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/mvnw b/mvnw
+--- a/mvnw	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ b/mvnw	(date 1731749806599)
+@@ -8,7 +8,7 @@
+ # "License"); you may not use this file except in compliance
+ # with the License.  You may obtain a copy of the License at
+ #
+-#    http://www.apache.org/licenses/LICENSE-2.0
++#    https://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing,
+ # software distributed under the License is distributed on an
+@@ -19,241 +19,292 @@
+ # ----------------------------------------------------------------------------
+ 
+ # ----------------------------------------------------------------------------
+-# Apache Maven Wrapper startup batch script, version 3.3.2
++# Maven Start Up Batch script
++#
++# Required ENV vars:
++# ------------------
++#   JAVA_HOME - location of a JDK home dir
+ #
+ # Optional ENV vars
+ # -----------------
+-#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+-#   MVNW_REPOURL - repo url base for downloading maven distribution
+-#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+-#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
++#   M2_HOME - location of maven2's installed home dir
++#   MAVEN_OPTS - parameters passed to the Java VM when running Maven
++#     e.g. to debug Maven itself, use
++#       set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
++#   MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+ # ----------------------------------------------------------------------------
+ 
+-set -euf
+-[ "${MVNW_VERBOSE-}" != debug ] || set -x
++if [ -z "$MAVEN_SKIP_RC" ] ; then
++
++  if [ -f /etc/mavenrc ] ; then
++    . /etc/mavenrc
++  fi
+ 
+-# OS specific support.
+-native_path() { printf %s\\n "$1"; }
+-case "$(uname)" in
+-CYGWIN* | MINGW*)
+-  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+-  native_path() { cygpath --path --windows "$1"; }
+-  ;;
++  if [ -f "$HOME/.mavenrc" ] ; then
++    . "$HOME/.mavenrc"
++  fi
++
++fi
++
++# OS specific support.  $var _must_ be set to either true or false.
++cygwin=false;
++darwin=false;
++mingw=false
++case "`uname`" in
++  CYGWIN*) cygwin=true ;;
++  MINGW*) mingw=true;;
++  Darwin*) darwin=true
++    # Use /usr/libexec/java_home if available, otherwise fall back to /Library/Java/Home
++    # See https://developer.apple.com/library/mac/qa/qa1170/_index.html
++    if [ -z "$JAVA_HOME" ]; then
++      if [ -x "/usr/libexec/java_home" ]; then
++        export JAVA_HOME="`/usr/libexec/java_home`"
++      else
++        export JAVA_HOME="/Library/Java/Home"
++      fi
++    fi
++    ;;
+ esac
+ 
+-# set JAVACMD and JAVACCMD
+-set_java_home() {
+-  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+-  if [ -n "${JAVA_HOME-}" ]; then
+-    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
++if [ -z "$JAVA_HOME" ] ; then
++  if [ -r /etc/gentoo-release ] ; then
++    JAVA_HOME=`java-config --jre-home`
++  fi
++fi
++
++if [ -z "$M2_HOME" ] ; then
++  ## resolve links - $0 may be a link to maven's home
++  PRG="$0"
++
++  # need this for relative symlinks
++  while [ -h "$PRG" ] ; do
++    ls=`ls -ld "$PRG"`
++    link=`expr "$ls" : '.*-> \(.*\)$'`
++    if expr "$link" : '/.*' > /dev/null; then
++      PRG="$link"
++    else
++      PRG="`dirname "$PRG"`/$link"
++    fi
++  done
++
++  saveddir=`pwd`
++
++  M2_HOME=`dirname "$PRG"`/..
++
++  # make it fully qualified
++  M2_HOME=`cd "$M2_HOME" && pwd`
++
++  cd "$saveddir"
++  # echo Using m2 at $M2_HOME
++fi
++
++# For Cygwin, ensure paths are in UNIX format before anything is touched
++if $cygwin ; then
++  [ -n "$M2_HOME" ] &&
++    M2_HOME=`cygpath --unix "$M2_HOME"`
++  [ -n "$JAVA_HOME" ] &&
++    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
++  [ -n "$CLASSPATH" ] &&
++    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
++fi
++
++# For Mingw, ensure paths are in UNIX format before anything is touched
++if $mingw ; then
++  [ -n "$M2_HOME" ] &&
++    M2_HOME="`(cd "$M2_HOME"; pwd)`"
++  [ -n "$JAVA_HOME" ] &&
++    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
++fi
++
++if [ -z "$JAVA_HOME" ]; then
++  javaExecutable="`which javac`"
++  if [ -n "$javaExecutable" ] && ! [ "`expr \"$javaExecutable\" : '\([^ ]*\)'`" = "no" ]; then
++    # readlink(1) is not available as standard on Solaris 10.
++    readLink=`which readlink`
++    if [ ! `expr "$readLink" : '\([^ ]*\)'` = "no" ]; then
++      if $darwin ; then
++        javaHome="`dirname \"$javaExecutable\"`"
++        javaExecutable="`cd \"$javaHome\" && pwd -P`/javac"
++      else
++        javaExecutable="`readlink -f \"$javaExecutable\"`"
++      fi
++      javaHome="`dirname \"$javaExecutable\"`"
++      javaHome=`expr "$javaHome" : '\(.*\)/bin'`
++      JAVA_HOME="$javaHome"
++      export JAVA_HOME
++    fi
++  fi
++fi
++
++if [ -z "$JAVACMD" ] ; then
++  if [ -n "$JAVA_HOME"  ] ; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+       # IBM's JDK on AIX uses strange locations for the executables
+       JAVACMD="$JAVA_HOME/jre/sh/java"
+-      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+     else
+       JAVACMD="$JAVA_HOME/bin/java"
+-      JAVACCMD="$JAVA_HOME/bin/javac"
+-
+-      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+-        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+-        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+-        return 1
+-      fi
+     fi
+   else
+-    JAVACMD="$(
+-      'set' +e
+-      'unset' -f command 2>/dev/null
+-      'command' -v java
+-    )" || :
+-    JAVACCMD="$(
+-      'set' +e
+-      'unset' -f command 2>/dev/null
+-      'command' -v javac
+-    )" || :
++    JAVACMD="`which java`"
++  fi
++fi
++
++if [ ! -x "$JAVACMD" ] ; then
++  echo "Error: JAVA_HOME is not defined correctly." >&2
++  echo "  We cannot execute $JAVACMD" >&2
++  exit 1
++fi
++
++if [ -z "$JAVA_HOME" ] ; then
++  echo "Warning: JAVA_HOME environment variable is not set."
++fi
++
++CLASSWORLDS_LAUNCHER=org.codehaus.plexus.classworlds.launcher.Launcher
+ 
+-    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+-      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+-      return 1
++# traverses directory structure from process work directory to filesystem root
++# first directory with .mvn subdirectory is considered project base directory
++find_maven_basedir() {
++
++  if [ -z "$1" ]
++  then
++    echo "Path not specified to find_maven_basedir"
++    return 1
++  fi
++
++  basedir="$1"
++  wdir="$1"
++  while [ "$wdir" != '/' ] ; do
++    if [ -d "$wdir"/.mvn ] ; then
++      basedir=$wdir
++      break
+     fi
+-  fi
+-}
+-
+-# hash string like Java String::hashCode
+-hash_string() {
+-  str="${1:-}" h=0
+-  while [ -n "$str" ]; do
+-    char="${str%"${str#?}"}"
+-    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+-    str="${str#?}"
++    # workaround for JBEAP-8937 (on Solaris 10/Sparc)
++    if [ -d "${wdir}" ]; then
++      wdir=`cd "$wdir/.."; pwd`
++    fi
++    # end of workaround
+   done
+-  printf %x\\n $h
+-}
+-
+-verbose() { :; }
+-[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+-
+-die() {
+-  printf %s\\n "$1" >&2
+-  exit 1
+-}
+-
+-trim() {
+-  # MWRAPPER-139:
+-  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+-  #   Needed for removing poorly interpreted newline sequences when running in more
+-  #   exotic environments such as mingw bash on Windows.
+-  printf "%s" "${1}" | tr -d '[:space:]'
++  echo "${basedir}"
+ }
+ 
+-# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+-while IFS="=" read -r key value; do
+-  case "${key-}" in
+-  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+-  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+-  esac
+-done <"${0%/*}/.mvn/wrapper/maven-wrapper.properties"
+-[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in ${0%/*}/.mvn/wrapper/maven-wrapper.properties"
+-
+-case "${distributionUrl##*/}" in
+-maven-mvnd-*bin.*)
+-  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+-  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+-  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+-  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+-  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+-  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+-  *)
+-    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+-    distributionPlatform=linux-amd64
+-    ;;
+-  esac
+-  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+-  ;;
+-maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+-*) MVN_CMD="mvn${0##*/mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+-esac
+-
+-# apply MVNW_REPOURL and calculate MAVEN_HOME
+-# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+-[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+-distributionUrlName="${distributionUrl##*/}"
+-distributionUrlNameMain="${distributionUrlName%.*}"
+-distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+-MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+-MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+-
+-exec_maven() {
+-  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+-  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
++# concatenates all lines of a file
++concat_lines() {
++  if [ -f "$1" ]; then
++    echo "$(tr -s '\n' ' ' < "$1")"
++  fi
+ }
+ 
+-if [ -d "$MAVEN_HOME" ]; then
+-  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+-  exec_maven "$@"
++BASE_DIR=`find_maven_basedir "$(pwd)"`
++if [ -z "$BASE_DIR" ]; then
++  exit 1;
+ fi
+ 
+-case "${distributionUrl-}" in
+-*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+-*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+-esac
+-
+-# prepare tmp dir
+-if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+-  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+-  trap clean HUP INT TERM EXIT
++##########################################################################################
++# Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
++# This allows using the maven wrapper in projects that prohibit checking in binary data.
++##########################################################################################
++if [ -r "$BASE_DIR/.mvn/wrapper/maven-wrapper.jar" ]; then
++    if [ "$MVNW_VERBOSE" = true ]; then
++      echo "Found .mvn/wrapper/maven-wrapper.jar"
++    fi
+ else
+-  die "cannot create temp dir"
+-fi
+-
+-mkdir -p -- "${MAVEN_HOME%/*}"
+-
+-# Download and Install Apache Maven
+-verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+-verbose "Downloading from: $distributionUrl"
+-verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+-
+-# select .zip or .tar.gz
+-if ! command -v unzip >/dev/null; then
+-  distributionUrl="${distributionUrl%.zip}.tar.gz"
+-  distributionUrlName="${distributionUrl##*/}"
+-fi
+-
+-# verbose opt
+-__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+-[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+-
+-# normalize http auth
+-case "${MVNW_PASSWORD:+has-password}" in
+-'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+-has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+-esac
+-
+-if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+-  verbose "Found wget ... using wget"
+-  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+-elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+-  verbose "Found curl ... using curl"
+-  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+-elif set_java_home; then
+-  verbose "Falling back to use Java to download"
+-  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+-  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+-  cat >"$javaSource" <<-END
+-	public class Downloader extends java.net.Authenticator
+-	{
+-	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+-	  {
+-	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+-	  }
+-	  public static void main( String[] args ) throws Exception
+-	  {
+-	    setDefault( new Downloader() );
+-	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+-	  }
+-	}
+-	END
+-  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+-  verbose " - Compiling Downloader.java ..."
+-  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+-  verbose " - Running Downloader.java ..."
+-  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+-fi
++    if [ "$MVNW_VERBOSE" = true ]; then
++      echo "Couldn't find .mvn/wrapper/maven-wrapper.jar, downloading it ..."
++    fi
++    if [ -n "$MVNW_REPOURL" ]; then
++      jarUrl="$MVNW_REPOURL/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
++    else
++      jarUrl="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
++    fi
++    while IFS="=" read key value; do
++      case "$key" in (wrapperUrl) jarUrl="$value"; break ;;
++      esac
++    done < "$BASE_DIR/.mvn/wrapper/maven-wrapper.properties"
++    if [ "$MVNW_VERBOSE" = true ]; then
++      echo "Downloading from: $jarUrl"
++    fi
++    wrapperJarPath="$BASE_DIR/.mvn/wrapper/maven-wrapper.jar"
++    if $cygwin; then
++      wrapperJarPath=`cygpath --path --windows "$wrapperJarPath"`
++    fi
+ 
+-# If specified, validate the SHA-256 sum of the Maven distribution zip file
+-if [ -n "${distributionSha256Sum-}" ]; then
+-  distributionSha256Result=false
+-  if [ "$MVN_CMD" = mvnd.sh ]; then
+-    echo "Checksum validation is not supported for maven-mvnd." >&2
+-    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+-    exit 1
+-  elif command -v sha256sum >/dev/null; then
+-    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c >/dev/null 2>&1; then
+-      distributionSha256Result=true
+-    fi
+-  elif command -v shasum >/dev/null; then
+-    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+-      distributionSha256Result=true
+-    fi
+-  else
+-    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+-    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+-    exit 1
+-  fi
+-  if [ $distributionSha256Result = false ]; then
+-    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+-    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+-    exit 1
+-  fi
+-fi
+-
+-# unzip and move
+-if command -v unzip >/dev/null; then
+-  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+-else
+-  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
++    if command -v wget > /dev/null; then
++        if [ "$MVNW_VERBOSE" = true ]; then
++          echo "Found wget ... using wget"
++        fi
++        if [ -z "$MVNW_USERNAME" ] || [ -z "$MVNW_PASSWORD" ]; then
++            wget "$jarUrl" -O "$wrapperJarPath"
++        else
++            wget --http-user=$MVNW_USERNAME --http-password=$MVNW_PASSWORD "$jarUrl" -O "$wrapperJarPath"
++        fi
++    elif command -v curl > /dev/null; then
++        if [ "$MVNW_VERBOSE" = true ]; then
++          echo "Found curl ... using curl"
++        fi
++        if [ -z "$MVNW_USERNAME" ] || [ -z "$MVNW_PASSWORD" ]; then
++            curl -o "$wrapperJarPath" "$jarUrl" -f
++        else
++            curl --user $MVNW_USERNAME:$MVNW_PASSWORD -o "$wrapperJarPath" "$jarUrl" -f
++        fi
++
++    else
++        if [ "$MVNW_VERBOSE" = true ]; then
++          echo "Falling back to using Java to download"
++        fi
++        javaClass="$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.java"
++        # For Cygwin, switch paths to Windows format before running javac
++        if $cygwin; then
++          javaClass=`cygpath --path --windows "$javaClass"`
++        fi
++        if [ -e "$javaClass" ]; then
++            if [ ! -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
++                if [ "$MVNW_VERBOSE" = true ]; then
++                  echo " - Compiling MavenWrapperDownloader.java ..."
++                fi
++                # Compiling the Java class
++                ("$JAVA_HOME/bin/javac" "$javaClass")
++            fi
++            if [ -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
++                # Running the downloader
++                if [ "$MVNW_VERBOSE" = true ]; then
++                  echo " - Running MavenWrapperDownloader.java ..."
++                fi
++                ("$JAVA_HOME/bin/java" -cp .mvn/wrapper MavenWrapperDownloader "$MAVEN_PROJECTBASEDIR")
++            fi
++        fi
++    fi
++fi
++##########################################################################################
++# End of extension
++##########################################################################################
++
++export MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-"$BASE_DIR"}
++if [ "$MVNW_VERBOSE" = true ]; then
++  echo $MAVEN_PROJECTBASEDIR
++fi
++MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
++
++# For Cygwin, switch paths to Windows format before running java
++if $cygwin; then
++  [ -n "$M2_HOME" ] &&
++    M2_HOME=`cygpath --path --windows "$M2_HOME"`
++  [ -n "$JAVA_HOME" ] &&
++    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
++  [ -n "$CLASSPATH" ] &&
++    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
++  [ -n "$MAVEN_PROJECTBASEDIR" ] &&
++    MAVEN_PROJECTBASEDIR=`cygpath --path --windows "$MAVEN_PROJECTBASEDIR"`
+ fi
+-printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/mvnw.url"
+-mv -- "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
++
++# Provide a "standardized" way to retrieve the CLI args that will
++# work with both Windows and non-Windows executions.
++MAVEN_CMD_LINE_ARGS="$MAVEN_CONFIG $@"
++export MAVEN_CMD_LINE_ARGS
+ 
+-clean || :
+-exec_maven "$@"
++WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
++
++exec "$JAVACMD" \
++  $MAVEN_OPTS \
++  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
++  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
++  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n    <modelVersion>4.0.0</modelVersion>\r\n    <parent>\r\n        <groupId>org.springframework.boot</groupId>\r\n        <artifactId>spring-boot-starter-parent</artifactId>\r\n        <version>3.3.4</version>\r\n        <relativePath/> <!-- lookup parent from repository -->\r\n    </parent>\r\n    <groupId>org.acentura</groupId>\r\n    <artifactId>loans</artifactId>\r\n    <version>0.0.1-SNAPSHOT</version>\r\n    <packaging>jar</packaging>\r\n    <name>loans</name>\r\n    <description>loans</description>\r\n    <url/>\r\n    <licenses>\r\n        <license/>\r\n    </licenses>\r\n    <developers>\r\n        <developer/>\r\n    </developers>\r\n    <scm>\r\n        <connection/>\r\n        <developerConnection/>\r\n        <tag/>\r\n        <url/>\r\n    </scm>\r\n    <properties>\r\n        <java.version>21</java.version>\r\n    </properties>\r\n    <dependencies>\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-data-jdbc</artifactId>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-validation</artifactId>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-web</artifactId>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>com.mysql</groupId>\r\n            <artifactId>mysql-connector-j</artifactId>\r\n            <scope>runtime</scope>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.projectlombok</groupId>\r\n            <artifactId>lombok</artifactId>\r\n            <optional>true</optional>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.springframework.boot</groupId>\r\n            <artifactId>spring-boot-starter-test</artifactId>\r\n            <scope>test</scope>\r\n        </dependency>\r\n        <dependency>\r\n            <groupId>org.springdoc</groupId>\r\n            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>\r\n            <version>2.6.0</version>\r\n        </dependency>\r\n    </dependencies>\r\n\r\n    <build>\r\n        <plugins>\r\n            <plugin>\r\n                <groupId>org.springframework.boot</groupId>\r\n                <artifactId>spring-boot-maven-plugin</artifactId>\r\n                <configuration>\r\n                    <excludes>\r\n                        <exclude>\r\n                            <groupId>org.projectlombok</groupId>\r\n                            <artifactId>lombok</artifactId>\r\n                        </exclude>\r\n                    </excludes>\r\n                </configuration>\r\n            </plugin>\r\n        </plugins>\r\n    </build>\r\n\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 9fc5084c38fcad591fc919c4d2069b220cea5ef8)
++++ b/pom.xml	(date 1736337227324)
+@@ -1,89 +1,97 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-    <parent>
+-        <groupId>org.springframework.boot</groupId>
+-        <artifactId>spring-boot-starter-parent</artifactId>
+-        <version>3.3.4</version>
+-        <relativePath/> <!-- lookup parent from repository -->
+-    </parent>
+-    <groupId>org.acentura</groupId>
+-    <artifactId>loans</artifactId>
+-    <version>0.0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-    <name>loans</name>
+-    <description>loans</description>
+-    <url/>
+-    <licenses>
+-        <license/>
+-    </licenses>
+-    <developers>
+-        <developer/>
+-    </developers>
+-    <scm>
+-        <connection/>
+-        <developerConnection/>
+-        <tag/>
+-        <url/>
+-    </scm>
+-    <properties>
+-        <java.version>21</java.version>
+-    </properties>
+-    <dependencies>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-validation</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-web</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>com.mysql</groupId>
+-            <artifactId>mysql-connector-j</artifactId>
+-            <scope>runtime</scope>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.projectlombok</groupId>
+-            <artifactId>lombok</artifactId>
+-            <optional>true</optional>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-test</artifactId>
+-            <scope>test</scope>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springdoc</groupId>
+-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+-            <version>2.6.0</version>
+-        </dependency>
+-    </dependencies>
++	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
++	<modelVersion>4.0.0</modelVersion>
++	<parent>
++		<groupId>org.springframework.boot</groupId>
++		<artifactId>spring-boot-starter-parent</artifactId>
++		<version>3.3.2</version>
++		<relativePath/> <!-- lookup parent from repository -->
++	</parent>
++	<groupId>com.dctechlabs</groupId>
++	<artifactId>loans</artifactId>
++	<version>0.0.1-SNAPSHOT</version>
++	<packaging>jar</packaging>
++	<name>loans</name>
++	<description>Microservice for Loans</description>
++	<properties>
++		<java.version>21</java.version>
++		<spring-cloud.version>2023.0.3</spring-cloud.version>
++	</properties>
++	<dependencies>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-actuator</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-data-jpa</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-validation</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-web</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.cloud</groupId>
++			<artifactId>spring-cloud-starter-config</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-devtools</artifactId>
++			<scope>runtime</scope>
++			<optional>true</optional>
++		</dependency>
++		<dependency>
++			<groupId>com.mysql</groupId>
++			<artifactId>mysql-connector-j</artifactId>
++			<scope>runtime</scope>
++		</dependency>
++		<dependency>
++			<groupId>org.projectlombok</groupId>
++			<artifactId>lombok</artifactId>
++			<optional>true</optional>
++		</dependency>
++		<dependency>
++			<groupId>org.springdoc</groupId>
++			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
++			<version>2.6.0</version>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-test</artifactId>
++			<scope>test</scope>
++		</dependency>
++	</dependencies>
++
++	<dependencyManagement>
++		<dependencies>
++			<dependency>
++				<groupId>org.springframework.cloud</groupId>
++				<artifactId>spring-cloud-dependencies</artifactId>
++				<version>${spring-cloud.version}</version>
++				<type>pom</type>
++				<scope>import</scope>
++			</dependency>
++		</dependencies>
++	</dependencyManagement>
+ 
+-    <build>
+-        <plugins>
+-            <plugin>
+-                <groupId>org.springframework.boot</groupId>
+-                <artifactId>spring-boot-maven-plugin</artifactId>
+-                <configuration>
+-                    <excludes>
+-                        <exclude>
+-                            <groupId>org.projectlombok</groupId>
+-                            <artifactId>lombok</artifactId>
+-                        </exclude>
+-                    </excludes>
+-                </configuration>
+-            </plugin>
+-        </plugins>
+-    </build>
++	<build>
++		<plugins>
++			<plugin>
++				<groupId>com.google.cloud.tools</groupId>
++				<artifactId>jib-maven-plugin</artifactId>
++				<version>3.4.2</version>
++				<configuration>
++					<to>
++						<image>mohamedsafras/${project.artifactId}:latest-1.0</image>
++					</to>
++				</configuration>
++			</plugin>
++		</plugins>
++	</build>
+ 
+ </project>
