@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2da725c8-6ef9-4e65-8d1f-0c1a911cec0f" name="Changes" comment="loans service has been initialized">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/LoansApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/audit/AuditAwareImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/constants/LoansConstants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/controller/LoansController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/dto/ErrorResponseDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/dto/LoansDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/dto/ResponseDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/entity/BaseEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/entity/Loans.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/exceptions/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/exceptions/LoanAlreadyExistsException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/exceptions/ResourceNotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/mapper/LoansMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/repository/LoansRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/service/ILoansService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dctechlabs/loans/service/impl/LoansServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/dctechlabs/loans/LoansApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Mohamed-safras&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Mohamed-safras/MyBank-Loans-Service.git&quot;,
+    &quot;accountId&quot;: &quot;b6758717-e915-44a4-a52b-a400c2b4f7ec&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2nmGWymCTG79ajn9b635jO5lJpj" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.LoansApplication.executor": "Run",
+    "git-widget-placeholder": "feature/loans-config",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/MyBank/loans",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="LoansApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="SPRING_PROFILES_ACTIVE" value="prod" />
+      </envs>
+      <option name="SPRING_BOOT_MAIN_CLASS" value="org.dctechlabs.loans.LoansApplication" />
+      <option name="VM_PARAMETERS" value="-Dspring.profiles.active=prod -Dspring.datasource.url=jdbc:mysql://localhost/loans -Dspring.datasource.password=Office@@6747@@ -Dspring.datasource.username=root -Dspring.profiles.active=prod" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.dctechlabs.loans.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.LoansApplication" />
+        <item itemvalue="Spring Boot.LoansApplication" />
+        <item itemvalue="Spring Boot.LoansApplication" />
+        <item itemvalue="Spring Boot.LoansApplication" />
+        <item itemvalue="Spring Boot.LoansApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2da725c8-6ef9-4e65-8d1f-0c1a911cec0f" name="Changes" comment="" />
+      <created>1729570872738</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1729570872738</updated>
+      <workItem from="1729570874540" duration="259000" />
+      <workItem from="1729579058647" duration="329000" />
+      <workItem from="1729581768811" duration="1561000" />
+      <workItem from="1729758572524" duration="3664000" />
+      <workItem from="1730370705059" duration="366000" />
+      <workItem from="1730373095144" duration="12000" />
+      <workItem from="1736318546501" duration="294000" />
+      <workItem from="1736325086099" duration="24000" />
+      <workItem from="1736331123505" duration="75000" />
+      <workItem from="1736331202677" duration="152000" />
+    </task>
+    <task id="LOCAL-00001" summary="loans service has been initialized">
+      <option name="closed" value="true" />
+      <created>1729571081357</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1729571081357</updated>
+    </task>
+    <task id="LOCAL-00002" summary="loans service has been initialized">
+      <option name="closed" value="true" />
+      <created>1729571105665</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1729571105665</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="loans service has been initialized" />
+    <option name="LAST_COMMIT_MESSAGE" value="loans service has been initialized" />
+  </component>
+</project>
